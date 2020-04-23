@@ -11,6 +11,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.view.View;
+import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -26,9 +27,9 @@ public class Setting extends AppCompatActivity implements AdapterView.OnItemSele
     String[] temp_units = {"\u2103", "\u2109"};
     String[] pres_units = {"hPa", "atm"};
     String[] wind_units = {"m/s", "mph"};
-    int t_position, p_position, w_position;
+    int t_position, p_position, w_position, t_pos, w_pos, p_pos;
     private SharedPreferences preferences;
-    int check = 0;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,10 +63,23 @@ public class Setting extends AppCompatActivity implements AdapterView.OnItemSele
         adapter2.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         wind_st.setAdapter(adapter2);
 
+
+        temp.setSelection(Adapter.NO_SELECTION, true);
+        pres.setSelection(Adapter.NO_SELECTION, true);
+        wind_st.setSelection(Adapter.NO_SELECTION, true);
+
         temp.setOnItemSelectedListener(this);
         pres.setOnItemSelectedListener(this);
         wind_st.setOnItemSelectedListener(this);
-
+        t_pos = preferences.getInt("tempPosition", 0);
+        p_pos = preferences.getInt("presPosition", 0);
+        w_pos = preferences.getInt("windPosition", 0);
+        t_unit = (String) temp.getItemAtPosition(t_pos);
+        temp_unit.setText(t_unit);
+        p_unit = (String) pres.getItemAtPosition(p_pos);
+        pres_unit.setText(p_unit);
+        w_unit = (String) wind_st.getItemAtPosition(w_pos);
+        wind_unit.setText(w_unit);
 
         get_back.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -97,30 +111,28 @@ public class Setting extends AppCompatActivity implements AdapterView.OnItemSele
     protected void onStart() {
         super.onStart();
 
-        t_position = preferences.getInt("tempPosition", 0);
-        p_position = preferences.getInt("presPosition", 0);
-        w_position = preferences.getInt("windPosition", 0);
+
+
 
     }
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View arg1, int pos,long id) {
-        check += 1;
-        if(++check > 1) {
-            if (parent == temp) {
-                t_position = pos;
-                t_unit = (String) temp.getItemAtPosition(t_position);
-                temp_unit.setText(t_unit);
-            } else if (parent == pres) {
-                p_position = pos;
-                p_unit = (String) pres.getItemAtPosition(p_position);
-                pres_unit.setText(p_unit);
-            } else {
-                w_position = pos;
-                w_unit = (String) wind_st.getItemAtPosition(w_position);
-                wind_unit.setText(w_unit);
-            }
+
+        if (parent == temp) {
+            t_position = pos;
+            t_unit = (String) temp.getItemAtPosition(t_position);
+            temp_unit.setText(t_unit);
+        } else if (parent == pres) {
+            p_position = pos;
+            p_unit = (String) pres.getItemAtPosition(p_position);
+            pres_unit.setText(p_unit);
+        } else {
+            w_position = pos;
+            w_unit = (String) wind_st.getItemAtPosition(w_position);
+            wind_unit.setText(w_unit);
         }
+
 
     }
 
