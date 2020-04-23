@@ -1,18 +1,15 @@
 package com.example.assignment1;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -20,17 +17,14 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -64,16 +58,7 @@ public class MainActivity extends AppCompatActivity {
         setting = findViewById(R.id.setting);
         main = findViewById(R.id.main);
 
-        if(savedInstanceState == null){
-            city = list_city.get(newran.normal_rd(list_city.size()));
-        }else{
-            final SharedPreferences city_name = getSharedPreferences(CITY_NAME,0);
-            city = city_name.getString("city", city);
-        }
-
-
-
-
+        city = list_city.get(newran.normal_rd(list_city.size()));
 
         // Instantiate the RequestQueue.
         String url = "https://api.openweathermap.org/data/2.5/weather?q=" + city + "&units=metric&appid=d172e20b9b43178c9bd16fad14172e03";
@@ -143,77 +128,68 @@ public class MainActivity extends AppCompatActivity {
         });
         queue.add(stringRequest);
 
-        try {
-            Intent intent = getIntent();
-            String[] values = intent.getStringArrayExtra("value");
-            assert values != null;
-            degree_unit = values[0];
-            pressure_unit = values[1];
-            wind_unit = values[2];
-        } catch (Exception e) {
-            System.out.print("No getIntent() in second activity");
-        }
+//        try {
+//            Intent intent = getIntent();
+//            String[] values = intent.getStringArrayExtra("value");
+//            assert values != null;
+//            degree_unit = values[0];
+//            pressure_unit = values[1];
+//            wind_unit = values[2];
+//        } catch (Exception e) {
+//            System.out.print("No getIntent() in second activity");
+//        }
 
         //Event listening on click setting
         setting.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent1 = new Intent(MainActivity.this, Setting.class);
-                startActivity(intent1);
+                startActivityForResult(intent1, 1);
             }
         });
 
     }
 
-
-    // Get data from setting activity
-//    @Override
-//    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-//        super.onActivityResult(requestCode, resultCode, data);
-//        if (requestCode == 1) {
-//            if (resultCode == RESULT_OK){
-//                String t_unit = data.getStringExtra("t_unit");
-//                String w_unit = data.getStringExtra("w_unit");
-//                String p_unit = data.getStringExtra("p_unit");
-//                if (!t_unit.equals(degree_unit)) {
-//                    degree_unit = t_unit;
-//                    if (t_unit.equals("\u2103")){
-//                        degree_value = degree_value*9/5 + 32;
-//                    }else{
-//                        degree_value = (degree_value - 32)*5/9;
-//                    }
-//                    degree.setText(degree_value + degree_unit);
-//                }
-//                if (!w_unit.equals(wind_unit)) {
-//                    wind_unit = w_unit;
-//                    if (w_unit.equals("m/s")){
-//                        wind_value = (int) (wind_value/2.237);
-//                    }else{
-//                        wind_value = (int) (wind_value*2.237);
-//                    }
-//                    wind.setText(wind_value + wind_unit);
-//                }
-//                if (!pressure_unit.equals(p_unit)) {
-//                    pressure_unit = p_unit;
-//                    if (p_unit.equals("hPa")){
-//                        pressure_value = pressure_value*101325;
-//                    }else{
-//                        pressure_value = pressure_value/101325;
-//                    }
-//                    pressure.setText(pressure_value + pressure_unit);
-//                }
-//            }
-//        }
-
-//    }
-
-    protected void onStop() {
-        super.onStop();
-        SharedPreferences spinnersaving = getSharedPreferences(CITY_NAME,0);
-
-        SharedPreferences.Editor editor = spinnersaving.edit();
-        editor.putString("city", city);
-
-        editor.apply();
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 1){
+            if (resultCode == Setting.RESULT_OK){
+                assert data != null;
+                String[] result = data.getStringArrayExtra("value");
+                assert result != null;
+                String t_unit = result[0];
+                String p_unit = result[1];
+                String w_unit = result[2];
+                if (!t_unit.equals(degree_unit)) {
+                    degree_unit = t_unit;
+                    if (t_unit.equals("\u2103")){
+                        degree_value = degree_value*9/5 + 32;
+                    }else{
+                        degree_value = (degree_value - 32)*5/9;
+                    }
+                    degree.setText(degree_value + degree_unit);
+                }
+                if (!w_unit.equals(wind_unit)) {
+                    wind_unit = w_unit;
+                    if (w_unit.equals("m/s")){
+                        wind_value = (int) (wind_value/2.237);
+                    }else{
+                        wind_value = (int) (wind_value*2.237);
+                    }
+                    wind.setText(wind_value + wind_unit);
+                }
+                if (!pressure_unit.equals(p_unit)) {
+                    pressure_unit = p_unit;
+                    if (p_unit.equals("hPa")){
+                        pressure_value = pressure_value*101325;
+                    }else{
+                        pressure_value = pressure_value/101325;
+                    }
+                    pressure.setText(pressure_value + pressure_unit);
+                }
+            }
+        }
     }
 }
+
